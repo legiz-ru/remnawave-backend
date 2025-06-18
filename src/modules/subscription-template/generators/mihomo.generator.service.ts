@@ -76,6 +76,11 @@ export class MihomoGeneratorService {
         }
     }
 
+    private getRandomProxy(proxyRemarks: string[]): string {
+    const randomIndex = Math.floor(Math.random() * proxyRemarks.length);
+    return proxyRemarks[randomIndex];
+}
+
     private async renderConfig(
         data: ClashData,
         proxyRemarks: string[],
@@ -107,12 +112,16 @@ export class MihomoGeneratorService {
             }
 
             for (const group of yamlConfig['proxy-groups']) {
-                if (group?.remnawave) {
-                    if (group.remnawave['include-proxies'] === false) {
-                        delete group.remnawave;
-                        continue;
-                    }
+            if (group?.remnawave) {
+                if (group.remnawave['include-proxies'] === false) {
+                    delete group.remnawave;
+                    continue;
+                } else if (group.remnawave['include-proxies'] === 'random') {
+                    const randomProxy = this.getRandomProxy(proxyRemarks);
+                    group.proxies.push(randomProxy);
                 }
+                delete group.remnawave;
+            }
 
                 if (Array.isArray(group.proxies)) {
                     for (const proxyRemark of proxyRemarks) {
